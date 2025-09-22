@@ -1,0 +1,14 @@
+package crypto
+
+import (
+	"Food_Delivery_Management/utils"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+func BcryptHash(password string) ([]byte, error) {
+	hashpassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+
+	utils.IsNotNilError(err, "bcrypt", "bcrypt is issue")
+	return hashpassword, nil
+}
