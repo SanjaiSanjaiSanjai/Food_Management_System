@@ -2,7 +2,6 @@ package jwttoken
 
 import (
 	customlogger "Food_Delivery_Management/HandleCustomLogger"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -45,20 +44,20 @@ func ExtractTokenFromRequest(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	fmt.Printf("tokenClaims type %T", tokenClaims)
-	fmt.Println("tokenClaims ******: ", tokenClaims)
 
-	// Our custom Claims uses json tag `json:"id"`, and when parsed into MapClaims
-	// numeric values are float64. Convert to uint and store in context.
+	// Extract user id from claims. Numeric values in MapClaims are float64.
 	if idf, ok := tokenClaims["id"].(float64); ok {
-		fmt.Printf("idf type %T", idf)
-		fmt.Println("idf: ", idf)
 		ctx.Set("user_id", uint(idf))
 	} else {
 		customlogger.Log.Error("[ExtractTokenFromRequest]: tokenClaims['id'] not found or not a number")
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: user id missing"})
 		ctx.Abort()
 		return
+	}
+
+	// Extract role from claims and set into context
+	if role, ok := tokenClaims["role"].(string); ok && role != "" {
+		ctx.Set("role", role)
 	}
 	ctx.Next()
 }

@@ -6,6 +6,7 @@ import (
 	login "Food_Delivery_Management/Login"
 	register "Food_Delivery_Management/Register"
 	schema "Food_Delivery_Management/Schema"
+	useraddress "Food_Delivery_Management/Service/User_Address"
 	"Food_Delivery_Management/utils"
 
 	"github.com/gin-gonic/gin"
@@ -33,5 +34,7 @@ func main() {
 	// pass base URL LoginRoutes
 	login.LoginRouter(baseRoutes)
 
+	// pass base URL UserAddressRoutes
+	useraddress.UserAddressRoutes(baseRoutes)
 	router.Run(":8081")
 }

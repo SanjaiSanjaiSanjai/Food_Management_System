@@ -11,3 +11,12 @@ type LoginDTO struct {
 	Password string `json:"password" binding:"required,min=6"`
 	Role     string `json:"role" binding:"required"`
 }
+
+type UserAddressDTO struct {
+	Address    string `json:"address" binding:"required"`
+	Country    string `json:"country" binding:"required"`
+	State      string `json:"state" binding:"required"`
+	Postalcode int    `json:"postalcode" binding:"required"`
+	Landmark   string `json:"landmark" binding:"required"`
+	Status     bool   `json:"status" binding:"required"`
+}

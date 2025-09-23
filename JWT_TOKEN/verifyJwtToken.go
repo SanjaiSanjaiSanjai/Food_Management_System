@@ -31,7 +31,6 @@ func VerifyJwtToken(tokenString string) (*jwt.Token, error) {
 
 	// Handle parse errors
 	if err != nil {
-		fmt.Println("token error: ", err)
 		utils.IsNotNilError(err, "VerifyJwtToken", "jwt Parse is issue")
 		return nil, err
 	}
@@ -40,7 +39,7 @@ func VerifyJwtToken(tokenString string) (*jwt.Token, error) {
 	utils.IsNotNilSuccess(token, "VerifyJwtToken", "jwt parse is token success")
 	// Check if token is valid (avoid nil pointer panic)
 
-	fmt.Println("token jwt.valid: ", token.Valid)
+	// fmt.Println("token jwt.valid: ", token.Valid)
 	if token == nil || !token.Valid {
 		customlogger.Log.Error("[VerifyJwtToken]: Invalid or expired token")
 		return nil, jwt.ErrSignatureInvalid
