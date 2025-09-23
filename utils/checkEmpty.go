@@ -34,3 +34,10 @@ func IsNillSuccess(value any, coming string, message string) {
 		customlogger.Log.Info(success_Msg)
 	}
 }
+
+func IsNillError(value any, coming string, message string) {
+	if value == nil {
+		error_Msg := fmt.Sprintf("[%s]: %s", coming, message)
+		customlogger.Log.Error(error_Msg)
+	}
+}

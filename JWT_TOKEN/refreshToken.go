@@ -2,6 +2,7 @@ package jwttoken
 
 import (
 	"Food_Delivery_Management/utils"
+	"fmt"
 	"os"
 	"time"
 
@@ -16,10 +17,19 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-var SECRET_KEY = []byte(os.Getenv("JWT_SECRET_KEY"))
+// SECRET_KEY will be loaded dynamically to ensure .env is loaded first
 
 func GenerateRefreshToken(user_id uint, email string) (string, error) {
 	godotenv.Load()
+	
+	// Get SECRET_KEY after loading .env
+	secretKey := os.Getenv("JWT_SECRET_KEY")
+	if secretKey == "" {
+		return "", fmt.Errorf("JWT_SECRET_KEY environment variable not set")
+	}
+	SECRET_KEY := []byte(secretKey)
+	utils.IsNillError(SECRET_KEY, "GenerateRefreshToken", "SECRET_KEY is nil")
+
 	claims := &Claims{
 		UserID: user_id,
 		Email:  email,
@@ -29,10 +39,11 @@ func GenerateRefreshToken(user_id uint, email string) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "Food_Delivery_Management",
-			Subject:   email,
+			Subject:   "email",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	utils.IsNillError(token, "GenerateRefreshToken", "token is NewWithClaims issue")
 
 	tokenString, err := token.SignedString(SECRET_KEY)
 	utils.IsNotNilError(err, "GenerateRefreshToken", "tokenString is issue")

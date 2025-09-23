@@ -2,6 +2,7 @@ package register
 
 import (
 	db "Food_Delivery_Management/DB"
+	"Food_Delivery_Management/DTO"
 	customlogger "Food_Delivery_Management/HandleCustomLogger"
 	jwttoken "Food_Delivery_Management/JWT_TOKEN"
 	repository "Food_Delivery_Management/Repository"
@@ -14,51 +15,44 @@ import (
 )
 
 func RegisterController(ctx *gin.Context) {
-	customlogger.Log.Info("[RegisterController]: function call is received")
-	// assign User Schema
-	var user schema.User
+	var req DTO.RegisterDTO
 
-	//get data req body
-	err := ctx.ShouldBind(&user)
+	err := ctx.ShouldBind(&req)
 
-	// error throw if ShouldBind is return error
-	utils.IsNotNilError(err, "RegisterController", "request body error")
+	// error handling
+	utils.RespondIfError(ctx, err, http.StatusBadRequest, "Invalid request body format from RegisterController function ShouldBind")
+	customlogger.Log.Info("[RegisterController]: request body format is success")
 
-	// success throw if ShouldBind is return data
-	utils.IsNillSuccess(err, "RegisterController", "request body is success")
+	password := req.Password
 
-	// get password only in user
-	password := user.Password
-
-	// convert string password to hashpassword
+	// hash password custom function
 	hashPassword, hashErr := crypto.BcryptHash(password)
 
-	// error throw if BcryptHash is return error
-	utils.IsNotNilError(hashErr, "RegisterController", "hashPassword is issue")
+	// error handling
+	utils.RespondIfError(ctx, hashErr, http.StatusInternalServerError, "BcryptHash is issue from RegisterController function BcryptHash")
+	customlogger.Log.Info("[RegisterController]: BcryptHash is success")
 
-	// success throw if BcryptHash is return data
-	utils.IsNotNilSuccess(hashPassword, "RegisterController", "hashPassword is genrated is succes")
+	req.Password = string(hashPassword)
 
-	// convert byte to string password
-	user.Password = string(hashPassword)
+	user := schema.User{
+		Username: req.Username,
+		Email:    req.Email,
+		Password: req.Password,
+	}
 
-	//create new user DB function
 	db_newUser_result, db_newUser_error := repository.CreateDB(db.DB, &user)
 
-	//error throw if CreateDB is return error
-	utils.IsNotNilError(db_newUser_error, "RegisterController", "newuser create db error")
+	// error handling
+	utils.RespondIfError(ctx, db_newUser_error, http.StatusInternalServerError, "newuser create db error from RegisterController function CreateDB")
+	customlogger.Log.Info("[RegisterController]: newuser create db is success")
 
-	//success throw if CreateDB is return data
-	utils.IsNotNilSuccess(db_newUser_result, "RegisterController", "newuser create db is succes")
-
-	// Token Generated
 	refreshToken, token_err := jwttoken.GenerateRefreshToken(db_newUser_result.ID, db_newUser_result.Email)
 
-	//error throw if GenerateRefreshToken is return error
-	utils.IsNotNilError(token_err, "RegisterController", "GenerateRefreshToken is error")
-
-	// success throw if GenerateRefreshToken is return data
-	utils.IsNotNilSuccess(refreshToken, "RegisterController", "refreshToken created  is succes")
-
-	ctx.JSON(http.StatusOK, gin.H{"message": "register success", "refresh_token": refreshToken})
+	// error handling
+	utils.RespondIfError(ctx, token_err, http.StatusInternalServerError, "GenerateRefreshToken is error from RegisterController function GenerateRefreshToken")
+	customlogger.Log.Info("[RegisterController]: GenerateRefreshToken is success")
+	utils.HandleSuccess(ctx, http.StatusOK, gin.H{
+		"message":       "register success",
+		"refresh_token": refreshToken,
+	})
 }

@@ -2,75 +2,93 @@ package login
 
 import (
 	db "Food_Delivery_Management/DB"
+	"Food_Delivery_Management/DTO"
+	customlogger "Food_Delivery_Management/HandleCustomLogger"
 	jwttoken "Food_Delivery_Management/JWT_TOKEN"
+	"Food_Delivery_Management/crypto"
+	"Food_Delivery_Management/utils"
+
+	// customlogger "Food_Delivery_Management/HandleCustomLogger"
+
 	repository "Food_Delivery_Management/Repository"
 	schema "Food_Delivery_Management/Schema"
-	"Food_Delivery_Management/utils"
+
+	// "Food_Delivery_Management/utils"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func LoginController(ctx *gin.Context) {
+	var req DTO.LoginDTO
 	var user schema.User
+	var role schema.Role
 
-	err := ctx.ShouldBind(&user)
-	utils.IsNotNilError(err, "LoginController", "request body is error")
+	getTokenUserId, ok := ctx.Get("user_id")
 
-	// Method 1: Using the convenient FindByEmail function
-	result, err := repository.FindByEmail(db.DB, &user, user.Email)
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"error":   "User not found",
-			"message": "Invalid email or password",
-		})
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format in LoginController function"})
+		ctx.Abort()
 		return
 	}
 
-	accessToken, err := jwttoken.GenerateAccessToken(result.ID, result.Email, "User")
+	requestBodyDataError := ctx.ShouldBind(&req)
 
-	utils.IsNotNilError(err, "LoginController", "GenerateAccessToken is error")
+	// error handling
+	utils.RespondIfError(ctx, requestBodyDataError, http.StatusBadRequest, "Invalid request body format in LoginController function")
 
-	updateQueryErr := repository.UpdateDynamic(db.DB, &result, []repository.QueryCondition{{Field: "is_verified", Operator: "=", Value: false}}, map[string]interface{}{"IsVerified": true})
+	getUserDataById, userFindError := repository.FindByID(db.DB, &user, getTokenUserId.(uint))
 
-	utils.IsNotNilError(updateQueryErr, "LoginController", "UpdateWithConditions")
-	// Method 2: Alternative using FindOneWithConditions for more complex queries
-	// This demonstrates how you can use multiple conditions and options
-	/*
-		conditions := []repository.QueryCondition{
-			{Field: "email", Operator: "=", Value: user.Email},
-			{Field: "status", Operator: "=", Value: true}, // Only active users
-			{Field: "is_verified", Operator: "=", Value: true}, // Only verified users
-		}
+	// error handling
+	utils.RespondIfError(ctx, userFindError, http.StatusUnauthorized, "User not found")
+	customlogger.Log.Info("[LoginController]: User found")
+	fmt.Printf("getUserDataById: %v", getUserDataById)
 
-		options := &repository.QueryOptions{
-			Preload: []string{"Role", "User_Addresses"}, // Eager load relationships
-			OrderBy: "created_at DESC",
-		}
+	if req.Email != getUserDataById.Email {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email"})
+		ctx.Abort()
+		return
+	}
 
-		result, err := repository.FindOneWithConditions(db.DB, &user, conditions, options)
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error":   "User not found",
-				"message": "Invalid email or password",
-			})
-			return
-		}
-	*/
+	isValid, compareError := crypto.BcryptCompare([]byte(getUserDataById.Password), req.Password)
 
-	// TODO: Add password verification here
-	// Example: bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password))
+	// error handling
+	utils.RespondIfError(ctx, compareError, http.StatusUnauthorized, "Invalid password")
 
-	// User found and authenticated, proceed with login logic
-	ctx.JSON(http.StatusOK, gin.H{
+	if !isValid {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
+		ctx.Abort()
+		return
+	}
+	customlogger.Log.Info("[LoginController]: Password matched")
+
+	accessToken, generateAccessTokenError := jwttoken.GenerateAccessToken(getUserDataById.ID, getUserDataById.Email, req.Role)
+
+	// error handling
+	utils.RespondIfError(ctx, generateAccessTokenError, http.StatusUnauthorized, "Invalid authorization header format")
+
+	updateQueryErr := repository.UpdateWithConditions(db.DB, &getUserDataById, []repository.QueryCondition{{Field: "is_verified", Operator: "=", Value: false}}, map[string]interface{}{"IsVerified": true})
+
+	// error handling
+	utils.RespondIfError(ctx, updateQueryErr, http.StatusUnauthorized, "Invalid authorization header format")
+	customlogger.Log.Info("[LoginController]: UpdateWithConditions is success")
+	role = schema.Role{UserID: getUserDataById.ID, Role: req.Role, Status: true}
+	createRole, createRoleError := repository.CreateDB(db.DB, &role)
+
+	// error handling
+	utils.RespondIfError(ctx, createRoleError, http.StatusUnauthorized, "Invalid authorization header format")
+	customlogger.Log.Info("[LoginController]: CreateDB is success")
+
+	utils.HandleSuccess(ctx, http.StatusOK, gin.H{
 		"message": "Login successful",
 		"user": gin.H{
-			"id":           result.ID,
-			"username":     result.Username,
-			"email":        result.Email,
-			"IsVerified":   result.IsVerified,
+			"id":           getUserDataById.ID,
+			"username":     getUserDataById.Username,
+			"email":        getUserDataById.Email,
+			"IsVerified":   getUserDataById.IsVerified,
+			"role":         createRole.Role,
 			"access_Token": accessToken,
-			// Don't return password in response
 		},
 	})
 }

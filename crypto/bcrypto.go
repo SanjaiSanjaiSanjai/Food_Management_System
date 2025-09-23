@@ -12,3 +12,8 @@ func BcryptHash(password string) ([]byte, error) {
 	utils.IsNotNilError(err, "bcrypt", "bcrypt is issue")
 	return hashpassword, nil
 }
+
+func BcryptCompare(hashpassword []byte, password string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(hashpassword, []byte(password))
+	return err == nil, err
+}
