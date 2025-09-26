@@ -20,3 +20,13 @@ type UserAddressDTO struct {
 	Landmark   string `json:"landmark" binding:"required"`
 	Status     bool   `json:"status" binding:"required"`
 }
+
+type RestaurantDTO struct {
+	Name           string  `json:"name" binding:"required"`
+	Description    string  `json:"description" binding:"required"`
+	Rating         float64 `json:"rating" binding:"required"`
+	Cuisine_type   string  `json:"cuisine_type" binding:"required"`
+	Phone          string  `json:"phone" binding:"required"`
+	Email          string  `json:"email" binding:"required,email"`
+	License_number uint    `json:"license_number" binding:"required"`
+}

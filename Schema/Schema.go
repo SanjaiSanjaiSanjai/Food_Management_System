@@ -34,11 +34,29 @@ type User_Addresses struct {
 }
 
 type Role struct {
-	Id        uint   `gorm:"primaryKey"`
-	UserID    uint   `gorm:"not null"`
-	Role      string `gorm:"type:role_enum"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Status    bool
-	User      User `gorm:"foreignKey:UserID"`
+	Id          uint   `gorm:"primaryKey"`
+	UserID      uint   `gorm:"not null"`
+	Role        string `gorm:"type:role_enum"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Status      bool
+	User        User          `gorm:"foreignKey:UserID"`
+	Restaurants []Restaurants `gorm:"foreignKey:Owner_id"`
+}
+
+type Restaurants struct {
+	Id             uint `gorm:"primaryKey"`
+	Name           string
+	Description    string
+	Rating         float64
+	Cuisine_type   string
+	Phone          string
+	Email          string
+	License_number uint
+	Owner_id       uint
+	Status         bool
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+
+	Role *Role `gorm:"foreignKey:Owner_id;references:Id"`
 }

@@ -55,9 +55,16 @@ func ExtractTokenFromRequest(ctx *gin.Context) {
 		return
 	}
 
-	// Extract role from claims and set into context
-	if role, ok := tokenClaims["role"].(string); ok && role != "" {
-		ctx.Set("role", role)
+	role := tokenClaims["role"].(string)
+	switch role {
+	case "Owner":
+		ctx.Set("role", "Owner")
+	case "User":
+		ctx.Set("role", "User")
+	case "Deliver_Agent":
+		ctx.Set("role", "Deliver_Agent")
+	default:
+		ctx.Next()
+		return
 	}
-	ctx.Next()
 }

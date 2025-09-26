@@ -18,7 +18,7 @@ func SchemaMigration() {
 	}
 
 	//Migrate all Schemas (Table)
-	err := db.DB.AutoMigrate(&User{}, &User_Addresses{}, &Role{})
+	err := db.DB.AutoMigrate(&User{}, &User_Addresses{}, &Role{}, &Restaurants{})
 
 	// err is not nil return error
 	utils.IsNotNilError(err, "SchemaMigration", "AutoMigration is issue")

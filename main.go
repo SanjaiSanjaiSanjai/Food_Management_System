@@ -6,6 +6,7 @@ import (
 	login "Food_Delivery_Management/Login"
 	register "Food_Delivery_Management/Register"
 	schema "Food_Delivery_Management/Schema"
+	restaurant "Food_Delivery_Management/Service/Restaurant"
 	useraddress "Food_Delivery_Management/Service/User_Address"
 	"Food_Delivery_Management/utils"
 
@@ -36,5 +37,8 @@ func main() {
 
 	// pass base URL UserAddressRoutes
 	useraddress.UserAddressRoutes(baseRoutes)
+
+	// pass base URL RestaurantRoutes
+	restaurant.RestaurantRoutes(baseRoutes)
 	router.Run(":8081")
 }

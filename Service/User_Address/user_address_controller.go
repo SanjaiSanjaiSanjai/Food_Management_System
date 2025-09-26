@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"net/http"
 
-	// schema "Food_Delivery_Management/Schema"
-
 	"github.com/gin-gonic/gin"
 )
 
