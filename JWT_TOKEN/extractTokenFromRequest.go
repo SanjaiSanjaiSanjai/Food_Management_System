@@ -58,11 +58,11 @@ func ExtractTokenFromRequest(ctx *gin.Context) {
 	role := tokenClaims["role"].(string)
 	switch role {
 	case "Owner":
-		ctx.Set("role", "Owner")
+		ctx.Set("role", role)
 	case "User":
-		ctx.Set("role", "User")
+		ctx.Set("role", role)
 	case "Deliver_Agent":
-		ctx.Set("role", "Deliver_Agent")
+		ctx.Set("role", role)
 	default:
 		ctx.Next()
 		return

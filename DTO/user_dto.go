@@ -16,7 +16,7 @@ type UserAddressDTO struct {
 	Address    string `json:"address" binding:"required"`
 	Country    string `json:"country" binding:"required"`
 	State      string `json:"state" binding:"required"`
-	Postalcode int    `json:"postalcode" binding:"required"`
+	Postalcode string `json:"postalcode" binding:"required"`
 	Landmark   string `json:"landmark" binding:"required"`
 	Status     bool   `json:"status" binding:"required"`
 }
@@ -29,4 +29,27 @@ type RestaurantDTO struct {
 	Phone          string  `json:"phone" binding:"required"`
 	Email          string  `json:"email" binding:"required,email"`
 	License_number uint    `json:"license_number" binding:"required"`
+}
+
+type RestaurantAddressDTO struct {
+	Address    string  `json:"address" binding:"required"`
+	City       string  `json:"city" binding:"required"`
+	State      string  `json:"state" binding:"required"`
+	Postalcode string  `json:"postalcode" binding:"required"`
+	Latitude   float64 `json:"latitude" binding:"required"`
+	Longitude  float64 `json:"longitude" binding:"required"`
+}
+
+type MenuDTO struct {
+	Name         string  `json:"name" binding:"required"`
+	Description  string  `json:"description" binding:"required"`
+	Price        float64 `json:"price" binding:"required"`
+	IsVegetarian bool    `json:"is_vegetarian" binding:"required"`
+	CategoryName string  `json:"category_name" binding:"required"`
+}
+
+type MenuCategoryDTO struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	IsActive    bool   `json:"is_active" binding:"required"`
 }

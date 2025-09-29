@@ -324,6 +324,19 @@ func applyCondition(query *gorm.DB, condition QueryCondition) *gorm.DB {
 	}
 }
 
+// GetAllRecords returns all records from the specified table
+// Example: 
+// var users []User
+// users, err := repository.GetAllRecords[User](db, nil)
+func GetAllRecords[T any](db *gorm.DB, options *QueryOptions) ([]T, error) {
+    var records []T
+    _, err := FindManyWithConditions(db, &records, nil, options)
+    if err != nil {
+        return nil, err
+    }
+    return records, nil
+}
+
 // Convenience functions for common operations
 
 // FindByEmail - Common function to find user by email
