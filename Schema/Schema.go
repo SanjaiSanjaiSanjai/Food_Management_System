@@ -66,6 +66,7 @@ type Restaurants struct {
 	// Relationships
 	Owner             *User              `gorm:"foreignKey:Owner_id;references:ID"`
 	RestaurantAddress *RestaurantAddress `gorm:"foreignKey:RestaurantID"`
+	MenuCategories    []MenuCategory     `gorm:"foreignKey:RestaurantID"`
 }
 
 type RestaurantAddress struct {

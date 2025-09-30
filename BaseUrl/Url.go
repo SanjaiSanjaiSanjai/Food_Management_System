@@ -8,4 +8,4 @@ var USER_ADDRESS_URL = map[string]string{"user_address": "/user/address"}
 
 var RESTAURANT_URL = map[string]string{"restaurant": "/restaurant/create", "getRestaurant": "/restaurant/getRestaurants", "restaurantAddress": "/restaurant/create/address"}
 
-var MENU_URL = map[string]string{"menu": "/menu/create/:restaurant_id", "menu_category": "/menu/category/create/:restaurant_id"}
+var MENU_URL = map[string]string{"menu": "/menu/create/:restaurant_id", "menu_category": "/menu/category/create/:restaurant_id", "getMenuCategories": "/menu/category/get"}

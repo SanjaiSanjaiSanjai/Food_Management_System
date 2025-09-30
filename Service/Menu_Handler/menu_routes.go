@@ -12,4 +12,6 @@ func MenuRoutes(rg *gin.RouterGroup) {
 	rg.POST(baseurl.MENU_URL["menu"], jwttoken.ExtractTokenFromRequest, CreateMenu)
 	// create menu category
 	rg.POST(baseurl.MENU_URL["menu_category"], jwttoken.ExtractTokenFromRequest, CreateMenuCategory)
+	// get all menu categories
+	rg.GET(baseurl.MENU_URL["getMenuCategories"], jwttoken.ExtractTokenFromRequest, GetAllMenuCategories)
 }
