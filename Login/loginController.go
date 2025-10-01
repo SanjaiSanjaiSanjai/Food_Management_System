@@ -36,12 +36,12 @@ func LoginController(ctx *gin.Context) {
 	requestBodyDataError := ctx.ShouldBind(&req)
 
 	// error handling
-	utils.RespondIfError(ctx, requestBodyDataError, http.StatusBadRequest, "Invalid request body format in LoginController function")
+	utils.RespondIfError(ctx, requestBodyDataError, http.StatusBadRequest)
 
 	getUserDataById, userFindError := repository.FindByID(db.DB, &user, getTokenUserId.(uint))
 
 	// error handling
-	utils.RespondIfError(ctx, userFindError, http.StatusUnauthorized, "User not found")
+	utils.RespondIfError(ctx, userFindError, http.StatusUnauthorized)
 	customlogger.Log.Info("[LoginController]: User found")
 	fmt.Printf("getUserDataById: %v", getUserDataById)
 
@@ -54,7 +54,7 @@ func LoginController(ctx *gin.Context) {
 	isValid, compareError := crypto.BcryptCompare([]byte(getUserDataById.Password), req.Password)
 
 	// error handling
-	utils.RespondIfError(ctx, compareError, http.StatusUnauthorized, "Invalid password")
+	utils.RespondIfError(ctx, compareError, http.StatusUnauthorized)
 
 	if !isValid {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
@@ -66,18 +66,18 @@ func LoginController(ctx *gin.Context) {
 	accessToken, generateAccessTokenError := jwttoken.GenerateAccessToken(getUserDataById.ID, getUserDataById.Email, req.Role)
 
 	// error handling
-	utils.RespondIfError(ctx, generateAccessTokenError, http.StatusUnauthorized, "Invalid authorization header format")
+	utils.RespondIfError(ctx, generateAccessTokenError, http.StatusUnauthorized)
 
 	updateQueryErr := repository.UpdateWithConditions(db.DB, &getUserDataById, []repository.QueryCondition{{Field: "is_verified", Operator: "=", Value: false}}, map[string]interface{}{"IsVerified": true})
 
 	// error handling
-	utils.RespondIfError(ctx, updateQueryErr, http.StatusUnauthorized, "Invalid authorization header format")
+	utils.RespondIfError(ctx, updateQueryErr, http.StatusUnauthorized)
 	customlogger.Log.Info("[LoginController]: UpdateWithConditions is success")
 	role = schema.Role{UserID: getUserDataById.ID, Role: req.Role, Status: true}
 	createRole, createRoleError := repository.CreateDB(db.DB, &role)
 
 	// error handling
-	utils.RespondIfError(ctx, createRoleError, http.StatusUnauthorized, "Invalid authorization header format")
+	utils.RespondIfError(ctx, createRoleError, http.StatusUnauthorized)
 	customlogger.Log.Info("[LoginController]: CreateDB is success")
 
 	utils.HandleSuccess(ctx, http.StatusOK, gin.H{

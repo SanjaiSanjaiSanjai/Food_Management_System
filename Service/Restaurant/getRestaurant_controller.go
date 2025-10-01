@@ -15,12 +15,12 @@ func GetRestaurants(ctx *gin.Context) {
 	getRole, _ := ctx.Get("role")
 
 	if getRole != "Owner" {
-		utils.RespondIfError(ctx, nil, http.StatusUnauthorized, "Owner role only allowed")
+		utils.RespondIfError(ctx, "Owner role only allowed", http.StatusUnauthorized)
 		return
 	}
 
 	if getUserId == nil {
-		utils.RespondIfError(ctx, nil, http.StatusUnauthorized, "User id not found")
+		utils.RespondIfError(ctx, "User id not found", http.StatusUnauthorized)
 		return
 	}
 	option := &repository.QueryOptions{
@@ -32,7 +32,7 @@ func GetRestaurants(ctx *gin.Context) {
 	getRestaurantDB, getRestaurantDBError := repository.GetAllRecords[schema.Restaurants](db.DB, option)
 
 	if getRestaurantDBError != nil {
-		utils.RespondIfError(ctx, nil, http.StatusInternalServerError, "Failed to get restaurants")
+		utils.RespondIfError(ctx, "Failed to get restaurants", http.StatusInternalServerError)
 		return
 	}
 	utils.HandleSuccess(ctx, http.StatusOK, getRestaurantDB)

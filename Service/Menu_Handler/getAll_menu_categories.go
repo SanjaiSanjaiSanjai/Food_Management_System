@@ -28,7 +28,7 @@ func GetAllMenuCategories(ctx *gin.Context) {
 	getMenuCategories, err := repository.FindManyWithConditions(db.DB, &menuCategories, queryCondition, nil)
 	if err != nil {
 		customlogger.Log.Error("Failed to get menu categories from GetAllMenuCategories in DB")
-		utils.RespondIfError(ctx, err, http.StatusInternalServerError, "failed to get menu categories")
+		utils.RespondIfError(ctx, "failed to get menu categories", http.StatusInternalServerError)
 		return
 	}
 	customlogger.Log.Info("GetAllMenuCategories is success")

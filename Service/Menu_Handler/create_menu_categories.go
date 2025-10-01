@@ -29,20 +29,20 @@ func CreateMenuCategory(ctx *gin.Context) {
 	restaurantID, restaurantIDErr := strconv.ParseUint(restaurantIDStr, 10, 32)
 
 	if restaurantIDErr != nil {
-		utils.RespondIfError(ctx, restaurantIDErr, http.StatusBadRequest, "Bad request")
+		utils.RespondIfError(ctx, "Bad request", http.StatusBadRequest)
 	}
 	var menuCategoryDTO DTO.MenuCategoryDTO
 
 	getRole, _ := ctx.Get("role")
 	if getRole != "Owner" {
 		customlogger.Log.Error("Owner role only allowed")
-		utils.RespondIfError(ctx, nil, http.StatusUnauthorized, "Owner role only allowed")
+		utils.RespondIfError(ctx, "Owner role only allowed", http.StatusUnauthorized)
 		return
 	}
 
 	requestBodyErr := ctx.ShouldBind(&menuCategoryDTO)
 	if requestBodyErr != nil {
-		utils.RespondIfError(ctx, requestBodyErr, http.StatusBadRequest, "Bad request")
+		utils.RespondIfError(ctx, "Bad request", http.StatusBadRequest)
 	}
 
 	menuCategory := schema.MenuCategory{
@@ -56,7 +56,7 @@ func CreateMenuCategory(ctx *gin.Context) {
 	newCategory, createCategoryErr := repository.CreateDB(db.DB, &menuCategory)
 	if createCategoryErr != nil {
 		customlogger.Log.Error("Failed to create menu category from CreateDB")
-		utils.RespondIfError(ctx, createCategoryErr, http.StatusInternalServerError, "Internal server error")
+		utils.RespondIfError(ctx, "Internal server error", http.StatusInternalServerError)
 	}
 	customlogger.Log.Info("Menu category created successfully")
 	utils.HandleSuccess(ctx, http.StatusCreated, newCategory)

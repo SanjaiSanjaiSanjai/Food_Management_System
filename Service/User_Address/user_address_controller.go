@@ -21,7 +21,7 @@ func UserAddressController(ctx *gin.Context) {
 
 	if getRole != "User" {
 		customlogger.Log.Error("User role is not valid")
-		utils.RespondIfError(ctx, nil, http.StatusUnauthorized, "User role is not valid")
+		utils.RespondIfError(ctx, "User role is not valid", http.StatusUnauthorized)
 		return
 	}
 
@@ -30,7 +30,7 @@ func UserAddressController(ctx *gin.Context) {
 	if requestBodyError != nil {
 		customlogger.Log.Error("Error in binding request body")
 		fmt.Println("Error in binding request body:", requestBodyError)
-		utils.RespondIfError(ctx, requestBodyError, 400, "Error in binding request body")
+		utils.RespondIfError(ctx, requestBodyError, http.StatusBadRequest)
 		return
 	}
 
@@ -49,7 +49,7 @@ func UserAddressController(ctx *gin.Context) {
 	if create_user_address_DBError != nil {
 		customlogger.Log.Error("Error in creating user address")
 		fmt.Println("Error in creating user address:", create_user_address_DBError)
-		utils.RespondIfError(ctx, create_user_address_DBError, http.StatusInternalServerError, "Error in creating user address")
+		utils.RespondIfError(ctx, "Error in creating user address", http.StatusInternalServerError)
 		return
 	}
 	utils.HandleSuccess(ctx, http.StatusOK, create_user_address_DB)

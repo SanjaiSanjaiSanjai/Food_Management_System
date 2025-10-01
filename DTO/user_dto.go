@@ -53,3 +53,7 @@ type MenuCategoryDTO struct {
 	Description string `json:"description" binding:"required"`
 	IsActive    bool   `json:"is_active" binding:"required"`
 }
+
+type RestaurantCategoryDTO struct {
+	CategoryName string `json:"category_name" binding:"required"`
+}

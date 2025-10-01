@@ -20,7 +20,7 @@ func RegisterController(ctx *gin.Context) {
 	err := ctx.ShouldBind(&req)
 
 	// error handling
-	utils.RespondIfError(ctx, err, http.StatusBadRequest, "Invalid request body format from RegisterController function ShouldBind")
+	utils.RespondIfError(ctx, err, http.StatusBadRequest)
 	customlogger.Log.Info("[RegisterController]: request body format is success")
 
 	password := req.Password
@@ -29,7 +29,7 @@ func RegisterController(ctx *gin.Context) {
 	hashPassword, hashErr := crypto.BcryptHash(password)
 
 	// error handling
-	utils.RespondIfError(ctx, hashErr, http.StatusInternalServerError, "BcryptHash is issue from RegisterController function BcryptHash")
+	utils.RespondIfError(ctx, hashErr, http.StatusInternalServerError)
 	customlogger.Log.Info("[RegisterController]: BcryptHash is success")
 
 	req.Password = string(hashPassword)
@@ -43,13 +43,13 @@ func RegisterController(ctx *gin.Context) {
 	db_newUser_result, db_newUser_error := repository.CreateDB(db.DB, &user)
 
 	// error handling
-	utils.RespondIfError(ctx, db_newUser_error, http.StatusInternalServerError, "newuser create db error from RegisterController function CreateDB")
+	utils.RespondIfError(ctx, db_newUser_error, http.StatusInternalServerError)
 	customlogger.Log.Info("[RegisterController]: newuser create db is success")
 
 	refreshToken, token_err := jwttoken.GenerateRefreshToken(db_newUser_result.ID, db_newUser_result.Email)
 
 	// error handling
-	utils.RespondIfError(ctx, token_err, http.StatusInternalServerError, "GenerateRefreshToken is error from RegisterController function GenerateRefreshToken")
+	utils.RespondIfError(ctx, token_err, http.StatusInternalServerError)
 	customlogger.Log.Info("[RegisterController]: GenerateRefreshToken is success")
 	utils.HandleSuccess(ctx, http.StatusOK, gin.H{
 		"message":       "register success",

@@ -25,12 +25,12 @@ func CreateRestaurantAddress(ctx *gin.Context) {
 	var restaurant schema.Restaurants
 
 	if getRole != "Owner" {
-		utils.RespondIfError(ctx, nil, http.StatusUnauthorized, "Owner role only allowed")
+		utils.RespondIfError(ctx, "Owner role only allowed", http.StatusUnauthorized)
 		return
 	}
 	customlogger.Log.Info("Owner role allowed")
 	if getUserId == nil {
-		utils.RespondIfError(ctx, nil, http.StatusUnauthorized, "User id not found")
+		utils.RespondIfError(ctx, "User id not found", http.StatusUnauthorized)
 		return
 	}
 	customlogger.Log.Info("User id found")
@@ -45,13 +45,13 @@ func CreateRestaurantAddress(ctx *gin.Context) {
 
 	if getRestaurantDBError != nil {
 		customlogger.Log.Error("Failed to find restaurant")
-		utils.RespondIfError(ctx, nil, http.StatusInternalServerError, "Failed to find restaurant")
+		utils.RespondIfError(ctx, getRestaurantDBError, http.StatusInternalServerError)
 		return
 	}
 
 	if getRestaurantDB == nil {
 		customlogger.Log.Error("Restaurant not found")
-		utils.RespondIfError(ctx, nil, http.StatusNotFound, "Restaurant not found")
+		utils.RespondIfError(ctx, "Restaurant not found", http.StatusNotFound)
 		return
 	}
 
@@ -59,7 +59,7 @@ func CreateRestaurantAddress(ctx *gin.Context) {
 
 	requestBodyErr := ctx.ShouldBindJSON(&req)
 	if requestBodyErr != nil {
-		utils.RespondIfError(ctx, nil, http.StatusBadRequest, "Bad request")
+		utils.RespondIfError(ctx, requestBodyErr, http.StatusBadRequest)
 		return
 	}
 
@@ -76,7 +76,7 @@ func CreateRestaurantAddress(ctx *gin.Context) {
 
 	if createRestaurantAddressError != nil {
 		customlogger.Log.Error("Failed to create restaurant address")
-		utils.RespondIfError(ctx, nil, http.StatusInternalServerError, "Failed to create restaurant address")
+		utils.RespondIfError(ctx, createRestaurantAddressError, http.StatusInternalServerError)
 		return
 	}
 	customlogger.Log.Info("Restaurant address created successfully")

@@ -43,7 +43,7 @@ func CreateMenu(ctx *gin.Context) {
 	fmt.Println("getRole", getRole)
 	if !ok || getRole != "Owner" {
 		customlogger.Log.Error("Owner role only allowed")
-		utils.RespondIfError(ctx, nil, http.StatusUnauthorized, "Owner role only allowed")
+		utils.RespondIfError(ctx, "Owner role only allowed", http.StatusUnauthorized)
 		return
 	}
 	customlogger.Log.Info("Owner role allowed")
@@ -55,12 +55,12 @@ func CreateMenu(ctx *gin.Context) {
 	}
 	findRestaurant, findRestaurantErr := repository.FindOneWithConditions(db.DB, &restaurant_table, restaurant_condition, nil)
 	if findRestaurantErr != nil {
-		utils.RespondIfError(ctx, findRestaurantErr, http.StatusNotFound, "Restaurant not found")
+		utils.RespondIfError(ctx, "Restaurant not found", http.StatusNotFound)
 	}
 
 	requestBodyErr := ctx.ShouldBind(&menuDTO)
 	if requestBodyErr != nil {
-		utils.RespondIfError(ctx, requestBodyErr, http.StatusBadRequest, "Bad request")
+		utils.RespondIfError(ctx, "Bad request", http.StatusBadRequest)
 	}
 
 	categoryCondition := []repository.QueryCondition{
@@ -68,7 +68,7 @@ func CreateMenu(ctx *gin.Context) {
 	}
 	findCategory, findCategoryErr := repository.FindOneWithConditions(db.DB, &menuCategory, categoryCondition, nil)
 	if findCategoryErr != nil {
-		utils.RespondIfError(ctx, findCategoryErr, http.StatusNotFound, "Category not found")
+		utils.RespondIfError(ctx, "Category not found", http.StatusNotFound)
 	}
 
 	// create new menu
@@ -83,7 +83,7 @@ func CreateMenu(ctx *gin.Context) {
 	fmt.Println("newMenu", newMenu)
 	createNewMenu, createNewMenuErr := repository.CreateDB(db.DB, &newMenu)
 	if createNewMenuErr != nil {
-		utils.RespondIfError(ctx, createNewMenuErr, http.StatusInternalServerError, "Internal server error")
+		utils.RespondIfError(ctx, "Internal server error", http.StatusInternalServerError)
 	}
 	utils.HandleSuccess(ctx, http.StatusCreated, createNewMenu)
 }

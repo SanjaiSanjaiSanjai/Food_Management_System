@@ -66,7 +66,7 @@ type Restaurants struct {
 	// Relationships
 	Owner             *User              `gorm:"foreignKey:Owner_id;references:ID"`
 	RestaurantAddress *RestaurantAddress `gorm:"foreignKey:RestaurantID"`
-	MenuCategories    []MenuCategory     `gorm:"foreignKey:RestaurantID"`
+	Categories        []MenuCategory     `gorm:"many2many:restaurant_categories;foreignKey:Id;joinForeignKey:restaurant_id;References:ID;joinReferences:menu_category_id"`
 }
 
 type RestaurantAddress struct {
@@ -90,15 +90,16 @@ type MenuCategory struct {
 	ID           uint      `gorm:"primaryKey;column:id"`
 	Name         string    `gorm:"column:name;type:varchar(100);not null"`
 	Description  string    `gorm:"column:description;type:text"`
-	IsActive     bool      `gorm:"column:is_active;default:true"`
-	RestaurantID uint      `gorm:"column:restaurant_id;not null;index"`
-	Status       bool      `gorm:"column:status;default:true"`
+	IsActive     bool      `gorm:"column:is_active;default:true;index:idx_menu_category_restaurant_active"`
+	RestaurantID uint      `gorm:"column:restaurant_id;not null;index:idx_menu_category_restaurant,priority:1;index:idx_menu_category_restaurant_active,priority:1"`
+	Status       bool      `gorm:"column:status;default:true;index:,type:btree"`
 	CreatedAt    time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt    time.Time `gorm:"column:updated_at;autoUpdateTime"`
 
 	// Relationships
-	Restaurant *Restaurants `gorm:"foreignKey:RestaurantID;references:Id"`
-	Menus      []Menu       `gorm:"foreignKey:CategoryID;references:ID"`
+	Restaurant  *Restaurants  `gorm:"foreignKey:restaurant_id;references:id"`
+	Menus       []Menu        `gorm:"foreignKey:CategoryID;references:ID"`
+	Restaurants []Restaurants `gorm:"many2many:restaurant_categories;foreignKey:id;joinForeignKey:menu_category_id;References:id;joinReferences:restaurant_id"`
 }
 
 type Menu struct {
@@ -117,4 +118,17 @@ type Menu struct {
 	// Relationships
 	Restaurant *Restaurants  `gorm:"foreignKey:RestaurantID;references:Id"`
 	Category   *MenuCategory `gorm:"foreignKey:CategoryID;references:ID"`
+}
+
+type RestaurantCategory struct {
+	ID           uint      `gorm:"primaryKey;column:id"`
+	RestaurantID uint      `gorm:"column:restaurant_id;not null;index:idx_restaurant_category_restaurant,priority:1"`
+	CategoryID   uint      `gorm:"column:menu_category_id;not null;index:idx_restaurant_category_category,priority:2"`
+	Status       bool      `gorm:"column:status;default:true;index:,type:btree"`
+	CreatedAt    time.Time `gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt    time.Time `gorm:"column:updated_at;autoUpdateTime"`
+
+	// Relationships
+	Restaurant Restaurants  `gorm:"foreignKey:restaurant_id;references:id"`
+	Category   MenuCategory `gorm:"foreignKey:menu_category_id;references:id"`
 }
