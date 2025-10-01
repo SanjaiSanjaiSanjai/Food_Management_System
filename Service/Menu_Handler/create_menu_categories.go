@@ -29,7 +29,7 @@ func CreateMenuCategory(ctx *gin.Context) {
 	restaurantID, restaurantIDErr := strconv.ParseUint(restaurantIDStr, 10, 32)
 
 	if restaurantIDErr != nil {
-		utils.RespondIfError(ctx, "Bad request", http.StatusBadRequest)
+		utils.RespondIfError(ctx, restaurantIDErr, http.StatusBadRequest)
 	}
 	var menuCategoryDTO DTO.MenuCategoryDTO
 
@@ -56,7 +56,8 @@ func CreateMenuCategory(ctx *gin.Context) {
 	newCategory, createCategoryErr := repository.CreateDB(db.DB, &menuCategory)
 	if createCategoryErr != nil {
 		customlogger.Log.Error("Failed to create menu category from CreateDB")
-		utils.RespondIfError(ctx, "Internal server error", http.StatusInternalServerError)
+		utils.RespondIfError(ctx, createCategoryErr, http.StatusInternalServerError)
+		return
 	}
 	customlogger.Log.Info("Menu category created successfully")
 	utils.HandleSuccess(ctx, http.StatusCreated, newCategory)

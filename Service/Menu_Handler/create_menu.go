@@ -55,12 +55,12 @@ func CreateMenu(ctx *gin.Context) {
 	}
 	findRestaurant, findRestaurantErr := repository.FindOneWithConditions(db.DB, &restaurant_table, restaurant_condition, nil)
 	if findRestaurantErr != nil {
-		utils.RespondIfError(ctx, "Restaurant not found", http.StatusNotFound)
+		utils.RespondIfError(ctx, findRestaurantErr, http.StatusNotFound)
 	}
 
 	requestBodyErr := ctx.ShouldBind(&menuDTO)
 	if requestBodyErr != nil {
-		utils.RespondIfError(ctx, "Bad request", http.StatusBadRequest)
+		utils.RespondIfError(ctx, requestBodyErr, http.StatusBadRequest)
 	}
 
 	categoryCondition := []repository.QueryCondition{
@@ -68,7 +68,7 @@ func CreateMenu(ctx *gin.Context) {
 	}
 	findCategory, findCategoryErr := repository.FindOneWithConditions(db.DB, &menuCategory, categoryCondition, nil)
 	if findCategoryErr != nil {
-		utils.RespondIfError(ctx, "Category not found", http.StatusNotFound)
+		utils.RespondIfError(ctx, findCategoryErr, http.StatusNotFound)
 	}
 
 	// create new menu
@@ -83,7 +83,7 @@ func CreateMenu(ctx *gin.Context) {
 	fmt.Println("newMenu", newMenu)
 	createNewMenu, createNewMenuErr := repository.CreateDB(db.DB, &newMenu)
 	if createNewMenuErr != nil {
-		utils.RespondIfError(ctx, "Internal server error", http.StatusInternalServerError)
+		utils.RespondIfError(ctx, createNewMenuErr, http.StatusInternalServerError)
 	}
 	utils.HandleSuccess(ctx, http.StatusCreated, createNewMenu)
 }

@@ -8,6 +8,7 @@ import (
 	repository "Food_Delivery_Management/Repository"
 	schema "Food_Delivery_Management/Schema"
 	"Food_Delivery_Management/utils"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,9 +33,21 @@ func GetMenuCategoryById(ctx *gin.Context) {
 	is_available_categoryBy_id, not_available_categoryBy_id := repository.FindOneWithConditions(db.DB, &categorySchema, category_condition, nil)
 	if not_available_categoryBy_id != nil {
 		customlogger.Log.Error("Category not found")
-		utils.RespondIfError(ctx, "Category not found", http.StatusNotFound)
+		utils.RespondIfError(ctx, not_available_categoryBy_id, http.StatusNotFound)
 		return
 	}
 	customlogger.Log.Info("Category found")
-	utils.HandleSuccess(ctx, http.StatusOK, is_available_categoryBy_id)
+	fmt.Println("is_available_categoryBy_id", is_available_categoryBy_id)
+
+	var restaurantCategory []schema.RestaurantCategory
+	var restaurant_category_condition = []repository.QueryCondition{{Field: " menu_category_id ", Operator: "=", Value: category_id}}
+	getAll_restaurant_categories, getAll_restaurant_categoriesErr := repository.FindManyWithConditions(db.DB, &restaurantCategory, restaurant_category_condition, nil)
+
+	if getAll_restaurant_categoriesErr != nil {
+		customlogger.Log.Error("Failed to get restaurant categories")
+		utils.RespondIfError(ctx, getAll_restaurant_categoriesErr, http.StatusInternalServerError)
+		return
+	}
+	customlogger.Log.Info("Restaurant categories found")
+	utils.HandleSuccess(ctx, http.StatusOK, getAll_restaurant_categories)
 }
